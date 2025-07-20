@@ -5,7 +5,7 @@ from genres.serializers import GenreSerializer
 from actors.serializer import ActorSerializer
 
 class MovieSerializer(serializers.ModelSerializer):
-    
+   
     class Meta:
         model = Movie
         fields = '__all__'
@@ -21,20 +21,35 @@ class MovieSerializer(serializers.ModelSerializer):
         return value
 
 class MovieListDetailSerializer(serializers.ModelSerializer):
-
+    actors = ActorSerializer(many=True)
     genre = GenreSerializer()
-    actors = ActorSerializer(many=True) 
-    rate = serializers.SerializerMethodField(read_only=True)
+    rate = serializers.SerializerMethodField()
 
     class Meta:
         model = Movie
         fields = ['id', 'title', 'genre', 'actors', 'release_date', 'rate', 'resume']
 
-    def get_rate(self,obj):#tem que comecar com get_
-        rate = obj.reviews.aggregate(Avg('stars'))['stars__avg']
-        if rate:
-            return round(rate,1)
-        return None
+    def get_rate(self, obj):
+        average_rate = obj.reviews.aggregate(Avg('stars'))['stars__avg']
+
+        if average_rate:
+            return round(average_rate, 1)
+
+# class MovieListDetailSerializer(serializers.ModelSerializer):
+#     genre = GenreSerializer()
+#     actors = ActorSerializer(many=True) 
+#     rate = serializers.SerializerMethodField(read_only=True)
+
+#     class Meta:
+#         model = Movie
+#         fields = '__all__'#['id', 'title', 'genre', 'actors', 'release_date', 'rate', 'resume']
+
+#     def get_rate(self,obj):#tem que comecar com get_
+#          rate = obj.reviews.aggregate(Avg('stars'))['stars__avg']
+#          if rate:
+#             return round(rate,1)
+#          return None
+
         # reviews = obj.reviews.all()
         # if reviews :
         #     sum_reviews = 0
